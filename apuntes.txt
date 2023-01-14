@@ -1,0 +1,25 @@
+<!-- <p>{% for in, out in inputoutput %}
+                <div style="height: 5%"></div>
+                <p style="margin= 0%;
+                    color: var(--io_text)"> Input: </p>
+                <p style="margin: 0%;
+                    margin-left: 5%">{{ in }}</p>
+
+                <p style="margin= 0%;
+                    color: var(--io_text)"> Output: </p>
+                {% for o in out %}
+                    <p style="margin: 0%;
+                        margin-left: 5%">{{ o }}</p>
+                {% endfor %}
+                <div style="height: 5%"></div>
+            {% endfor %}</p> -->
+
+
+
+
+<!--{% for name, value in functions.items() %}
+                <p> {{name}}
+                    {% for param in value.params%}
+                    {{param}}
+                    {%endfor%}
+                </p>-->
