@@ -75,19 +75,14 @@
     <div class="rightdiv">
         <!-- Content for the second section goes here -->
         <h1 style="color:green;">Resultats:</h1>
-        <p>{% for in, out in io_buffer %}
-            <div style="height: 5%"></div>
-            <p style="margin= 0%;
-                color: var(--io_text)"> Input: </p>
-            <p style="margin: 0%;
-                margin-left: 5%">{{ in }}</p>
+        <p> {% for in, out in in_out %}
+            
+            <p style="margin-left: 5%"><li><b>Input:</b>
+                 {{ in }} </li></p>
 
-            <p style="margin= 0%;
-                color: var(--io_text)"> Output: </p>
-            {% for o in out %}
-                <p style="margin: 0%;
-                    margin-left: 5%">{{ o }}</p>
-            {% endfor %}
+            <p style="margin-left: 5%"><li><b>Output:</b>
+                {% for o in out %} {{ o }} {% endfor %}</li></p>
+            
             <div style="height: 5%"></div>
         {% endfor %}</p>
 

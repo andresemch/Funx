@@ -9,7 +9,7 @@ class FunxInterpret:
         self.funcions = {}
         self.tree_visitor = FunxTreeVisitor()
         self.tree_visitor.setOutputToBuffer(True)
-        self.io_buffer = []
+        self.in_out = []
 
     def execute(self, code):
         code_stream = InputStream(code)
@@ -22,30 +22,27 @@ class FunxInterpret:
             output = self.tree_visitor.getOutputBuffer()
             if len(output) == 0:
                 output = ["None"]
-            self.io_buffer.append((code, output))
+            self.in_out.append((code, output))
         except Exception as e:
-            self.io_buffer.append((code, [e]))
+            self.in_out.append((code, [e]))
 
 
-    def getFunctions(self):
+    def getFuncions(self):
         return self.tree_visitor.getFunctions()
 
-    def getIObuffer(self):
-        return self.io_buffer
+    def getInout(self):
+        return self.in_out
 
 app = Flask(__name__)
 funxInter = FunxInterpret()
 
 @app.route("/", methods=['GET', 'POST'])
 def base():
-    #if request.method == 'GET':
-    #    return render_template('base.html', name="default")
-    #else:
     if request.method == 'POST':
         new_code = request.form["coding"]
         funxInter.execute(new_code)
     
-    io_buffer = funxInter.getIObuffer()
-    funcions = funxInter.getFunctions()
+    in_out = funxInter.getInout()
+    funcions = funxInter.getFuncions()
     return render_template('base.html',
-        name="ok",io_buffer=io_buffer[::-1],funcions=funcions[::-1])
+        name="ok",in_out=in_out[::-1],funcions=funcions[::-1])

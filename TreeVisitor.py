@@ -4,18 +4,8 @@ from funxVisitor import funxVisitor
 class FunxTreeVisitor(funxVisitor):
 
     def __init__(self):
-        self.nivell = 0
         self.contexts = [{}]
-        # functions is a dictionary where the key is
-        # the function name and number of arguments of
-        # the function and the value is the argument names
-        # and code
         self.functions = {}
-        # if the program is executing a function things like
-        # conditionals or while loops should return the first
-        # thing that return a value that they encounter, whereas
-        # in the main code conditionals and loops do not return
-        # anything
         self.infunction = False
         self.parsing_functions = True
         self.output_to_buffer = False
@@ -40,7 +30,7 @@ class FunxTreeVisitor(funxVisitor):
         if len(fills) > 1:
             raise Exception("LANGUAGE ERROR: non atomic statement")
         res = self.visit(fills[0])
-        if not self.infunction and res is not None:
+        if res is not None and not self.infunction:
             # if the output is for the webpage there is no need
             # to add the word output, as it will be added in
             # the HTML
@@ -284,23 +274,7 @@ class FunxTreeVisitor(funxVisitor):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def getFunctions(self):
-        # the format is:
-        # name of function, parameters
         functions = []
         for key, val in self.functions.items():
             functions.append((key[0], " ".join(val[0])))
