@@ -5,45 +5,36 @@ class FunxTreeVisitor(funxVisitor):
 
     def __init__(self):
         self.contexts = [{}]
-        self.functions = {}
-        self.infunction = False
-        self.parsing_functions = True
-        self.output_to_buffer = False
-        self.output_buffer = []
+        self.funcions = {}
+        self.outputInter = False
+        self.outputs = []
+        self.dintreFuncio = False
+        self.instruFunc = True
 
     def visitRoot(self, ctx):
         fills = list(ctx.getChildren())
-        self.output_buffer = []
-        self.parsing_functions = True
+        self.outputs = []
+        self.instruFunc = True
         for f in fills:
             self.visit(f)
-        self.parsing_functions = False
+        self.instruFunc = False
         for f in fills:
             self.visit(f)
 
     def visitInstru(self, ctx): ##
-        # if this is not a function declaration, ignore it
-        # when parsing functions
-        if self.parsing_functions:
+        if self.instruFunc:
             return
         fills = list(ctx.getChildren())
-        if len(fills) > 1:
-            raise Exception("LANGUAGE ERROR: non atomic statement")
         res = self.visit(fills[0])
-        if res is not None and not self.infunction:
-            # if the output is for the webpage there is no need
-            # to add the word output, as it will be added in
-            # the HTML
-            if self.output_to_buffer:
+        if res is not None and not self.dintreFuncio:
+            if self.outputInter:
                 self.writeOutput(str(res))
             else:
                 self.writeOutput("Out: {}".format(res))
         return res
 
     def visitFuncio(self, ctx): ##
-        # avoid visiting this element if not parsing functions
-        # as functions were already parsed at the beginning
-        if not self.parsing_functions:
+        if not self.instruFunc:
             return
         fills = list(ctx.getChildren())
         func = fills[0].getText()
@@ -59,17 +50,14 @@ class FunxTreeVisitor(funxVisitor):
                 params.append(t)
             else:
                 codi.append(f)
-        # check that all parameters are different
+                
         if len(params) != len(set(params)):
-            msg = "ERROR: es repeteixen parametres en la funcio {}"
-            raise Exception(msg.format(func))
+            raise Exception("ERROR: es repeteixen parametres en la funcio {}".format(func))
 
         key = (func, len(params))
-        if key in self.functions.keys():
-            msg = "ERROR: a version of the function {} with {}\
- parameters already exists"
-            raise Exception(msg.format(func, len(params)))
-        self.functions[key] = (params, codi)
+        if key in self.funcions.keys():
+            raise Exception("ERROR: una versio de la funcio {} amb {} parametres ja existeix".format(func, len(params)))
+        self.funcions[key] = (params, codi)
 
 
 
@@ -82,28 +70,22 @@ class FunxTreeVisitor(funxVisitor):
             params = [self.visit(param) for param in fills[1:]]
 
         key = (nomFuncio, len(params))
-        if key not in self.functions.keys():
-            msg = "ERROR: function {} with {} parameters not found"
-            raise Exception(msg.format(nomFuncio, len(params)))
-
-        # generate new context with function variables
-        function = self.functions[key]
-        new_context = {}
+        if key not in self.funcions.keys():
+            raise Exception("ERROR: funcio {} amb els parametres {} no s'ha trobat".format(nomFuncio, len(params)))
+        function = self.funcions[key]
+        nouContext = {}
         for i in range(key[1]):
-            new_context[function[0][i]] = params[i]
-        self.contexts.append(new_context)
-
-        # execute function code until something returns a
-        # value that is not none, otherwise return none
-        old_inf = self.infunction
-        self.infunction = True
+            nouContext[function[0][i]] = params[i]
+        self.contexts.append(nouContext)
+        old_inf = self.dintreFuncio
+        self.dintreFuncio = True
         for code_item in function[1]:
             val = self.visit(code_item)
             if val is not None:
                 self.contexts.pop(-1)
-                self.infunction = old_inf
+                self.dintreFuncio = old_inf
                 return val
-        self.infunction = old_inf
+        self.dintreFuncio = old_inf
         self.contexts.pop(-1)
 
 
@@ -116,9 +98,8 @@ class FunxTreeVisitor(funxVisitor):
         v1 = self.visit(fills[0])
         v2 = self.visit(fills[2])
         if v2 < 0:
-            expr = "".join([x.getText() for x in childs])
-            msg = "ERROR: negative powers are undefined in expr {}"
-            raise Exception(msg.format(expr))
+            expr = "".join([x.getText() for x in fills])
+            raise Exception("ERROR: exponenciacio negativa {}".format(expr))
         return v1**v2
 
     def visitModDivMult(self, ctx):
@@ -134,8 +115,7 @@ class FunxTreeVisitor(funxVisitor):
                 return v1 % v2
         else:
             expr = "".join([x.getText() for x in fills])
-            msg = "ERROR: division by zero at expr {}"
-            raise Exception(msg.format(expr))
+            raise Exception("ERROR: divisio per 0 {}".format(expr))
 
     def visitSumaResta(self, ctx):
         fills = list(ctx.getChildren())
@@ -151,8 +131,7 @@ class FunxTreeVisitor(funxVisitor):
         var = fills[0].getText()
 
         if var not in self.contexts[-1].keys():
-            msg = "ERROR: desconegut el nom de la variable \"{}\""
-            raise Exception(msg.format(var))
+            raise Exception("ERROR: desconegut el nom de la variable \"{}\"".format(var))
         return self.contexts[-1][var]
 
     def visitNumero(self, ctx):
@@ -169,12 +148,10 @@ class FunxTreeVisitor(funxVisitor):
 
     def visitCond(self, ctx):
         fills = list(ctx.getChildren())
-        # for each if, elseif or else statement
-        for condition in fills:
-            # if the condition is true, skip the others
-            true_cond, value = self.visit(condition)
-            if true_cond:
-                return value
+        for condicio in fills:
+            cert, v = self.visit(condicio)
+            if cert:
+                return v
         return None
 
     def visitIfcond(self, ctx):
@@ -182,10 +159,8 @@ class FunxTreeVisitor(funxVisitor):
         if self.visit(fills[1]):
             for f in fills[3:-1]:
                 v = self.visit(f)
-                if self.infunction and v is not None:
+                if self.dintreFuncio and v is not None:
                     return True, v
-            # return true to let the conditional statement
-            # know that this condition was met
             return True, None
         return False, None
 
@@ -193,7 +168,7 @@ class FunxTreeVisitor(funxVisitor):
         fills = list(ctx.getChildren())
         for f in fills[2:-1]:
             v = self.visit(f)
-            if self.infunction and v is not None:
+            if self.dintreFuncio and v is not None:
                 return True, v
         return True, None
 
@@ -230,8 +205,7 @@ class FunxTreeVisitor(funxVisitor):
         elif fills[1].getText() == '>=':
             return self.visit(fills[0]) >= self.visit(fills[2])
         else:
-            msg = "ERROR: desconegut simbol {}"
-            raise Exception(msg.format(simbol))
+            raise Exception("ERROR: desconegut simbol {}".format(simbol))
 
     def visitBoolean(self, ctx):
         fills = list(ctx.getChildren())
@@ -249,8 +223,7 @@ class FunxTreeVisitor(funxVisitor):
         var = fills[0].getText()
 
         if var not in self.contexts[-1].keys():
-            msg = "ERROR: desconegut el nom de la variable \"{}\""
-            raise Exception(msg.format(var))
+            raise Exception("ERROR: desconegut el nom de la variable \"{}\"".format(var))
         return self.contexts[-1][var]
     
     def visitBucle(self, ctx):
@@ -258,7 +231,7 @@ class FunxTreeVisitor(funxVisitor):
         while self.visit(fills[1]):
             for f in fills[3:-1]:
                 res = self.visit(f)
-                if self.infunction and res is not None:
+                if self.dintreFuncio and res is not None:
                     return res
     
     def visitAssignacio(self, ctx):
@@ -274,31 +247,24 @@ class FunxTreeVisitor(funxVisitor):
 
 
 
-    def getFunctions(self):
-        functions = []
-        for key, val in self.functions.items():
-            functions.append((key[0], " ".join(val[0])))
-        return functions
+    def getFuncions(self):
+        funcions = []
+        for key, val in self.funcions.items():
+            funcions.append((key[0], " ".join(val[0])))
+        return funcions
 
-    def getGlobVars(self):
-        # the format is:
-        # name of the variable, value
-        variables = []
-        for name, val in self.contexts[-1].items():
-            variables.append((name, str(val)))
-        return variables
-
-    def setOutputToBuffer(self, output_to_buffer):
-        self.output_to_buffer = output_to_buffer
+    def getOutput(self):
+        return self.outputs
 
     def writeOutput(self, text):
-        if self.output_to_buffer:
-            self.output_buffer.append(text)
+        if self.outputInter:
+            self.outputs.append(text)
         else:
             print(text)
 
-    def getOutputBuffer(self):
-        return self.output_buffer
+    def setOutputInter(self, outputInter):
+        self.outputInter = outputInter
+
     
 
     

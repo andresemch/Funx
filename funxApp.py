@@ -8,7 +8,7 @@ class FunxInterpret:
     def __init__(self):
         self.funcions = {}
         self.tree_visitor = FunxTreeVisitor()
-        self.tree_visitor.setOutputToBuffer(True)
+        self.tree_visitor.setOutputInter(True)
         self.in_out = []
 
     def execute(self, code):
@@ -19,7 +19,7 @@ class FunxInterpret:
         tree = parser.root()
         try:
             self.tree_visitor.visit(tree)
-            output = self.tree_visitor.getOutputBuffer()
+            output = self.tree_visitor.getOutput()
             if len(output) == 0:
                 output = ["None"]
             self.in_out.append((code, output))
@@ -28,7 +28,7 @@ class FunxInterpret:
 
 
     def getFuncions(self):
-        return self.tree_visitor.getFunctions()
+        return self.tree_visitor.getFuncions()
 
     def getInout(self):
         return self.in_out
