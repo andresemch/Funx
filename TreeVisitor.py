@@ -1,6 +1,7 @@
 from funxParser import funxParser
 from funxVisitor import funxVisitor
 
+
 class FunxTreeVisitor(funxVisitor):
 
     def __init__(self):
@@ -21,7 +22,7 @@ class FunxTreeVisitor(funxVisitor):
         for f in fills:
             self.visit(f)
 
-    def visitInstru(self, ctx): ##
+    def visitInstru(self, ctx):
         if self.instruFunc:
             return
         fills = list(ctx.getChildren())
@@ -33,7 +34,7 @@ class FunxTreeVisitor(funxVisitor):
                 self.writeOutput("Out: {}".format(res))
         return res
 
-    def visitFuncio(self, ctx): ##
+    def visitFuncio(self, ctx):
         if not self.instruFunc:
             return
         fills = list(ctx.getChildren())
@@ -50,18 +51,18 @@ class FunxTreeVisitor(funxVisitor):
                 params.append(t)
             else:
                 codi.append(f)
-                
+
         if len(params) != len(set(params)):
-            raise Exception("ERROR: es repeteixen parametres en la funcio {}".format(func))
+            raise Exception(
+                "ERROR: es repeteixen parametres en la funcio {}".format(func))
 
         key = (func, len(params))
         if key in self.funcions.keys():
-            raise Exception("ERROR: una versio de la funcio {} amb {} parametres ja existeix".format(func, len(params)))
+            raise Exception("ERROR: una versio de la funcio {} amb {} parametres ja existeix".format(
+                func, len(params)))
         self.funcions[key] = (params, codi)
 
-
-
-    def visitExecfunc(self, ctx): ##
+    def visitExecfunc(self, ctx):
         fills = list(ctx.getChildren())
         nomFuncio = fills[0].getText()
         if fills[-1].getText() == ';':
@@ -71,7 +72,8 @@ class FunxTreeVisitor(funxVisitor):
 
         key = (nomFuncio, len(params))
         if key not in self.funcions.keys():
-            raise Exception("ERROR: funcio {} amb els parametres {} no s'ha trobat".format(nomFuncio, len(params)))
+            raise Exception("ERROR: funcio {} amb els parametres {} no s'ha trobat".format(
+                nomFuncio, len(params)))
         function = self.funcions[key]
         nouContext = {}
         for i in range(key[1]):
@@ -87,7 +89,6 @@ class FunxTreeVisitor(funxVisitor):
                 return val
         self.dintreFuncio = old_inf
         self.contexts.pop(-1)
-
 
     def visitExprParentesis(self, ctx):
         fills = list(ctx.getChildren())
@@ -125,13 +126,14 @@ class FunxTreeVisitor(funxVisitor):
             return v1 + v2
         else:
             return v1 - v2
-    
+
     def visitExprVariable(self, ctx):
         fills = list(ctx.getChildren())
         var = fills[0].getText()
 
         if var not in self.contexts[-1].keys():
-            raise Exception("ERROR: desconegut el nom de la variable \"{}\"".format(var))
+            raise Exception(
+                "ERROR: desconegut el nom de la variable \"{}\"".format(var))
         return self.contexts[-1][var]
 
     def visitNumero(self, ctx):
@@ -179,7 +181,7 @@ class FunxTreeVisitor(funxVisitor):
     def visitNegacio(self, ctx):
         fills = list(ctx.getChildren())
         return not self.visit(fills[0])
-    
+
     def visitDisjuncio(self, ctx):
         fills = list(ctx.getChildren())
         return self.visit(fills[0]) or self.visit(fills[2])
@@ -223,9 +225,10 @@ class FunxTreeVisitor(funxVisitor):
         var = fills[0].getText()
 
         if var not in self.contexts[-1].keys():
-            raise Exception("ERROR: desconegut el nom de la variable \"{}\"".format(var))
+            raise Exception(
+                "ERROR: desconegut el nom de la variable \"{}\"".format(var))
         return self.contexts[-1][var]
-    
+
     def visitBucle(self, ctx):
         fills = list(ctx.getChildren())
         while self.visit(fills[1]):
@@ -233,19 +236,11 @@ class FunxTreeVisitor(funxVisitor):
                 res = self.visit(f)
                 if self.dintreFuncio and res is not None:
                     return res
-    
+
     def visitAssignacio(self, ctx):
         fills = list(ctx.getChildren())
         value = self.visit(fills[2])
         self.contexts[-1][fills[0].getText()] = value
-
-
-
-
-
-
-
-
 
     def getFuncions(self):
         funcions = []
@@ -264,9 +259,3 @@ class FunxTreeVisitor(funxVisitor):
 
     def setOutputInter(self, outputInter):
         self.outputInter = outputInter
-
-    
-
-    
-
-    
