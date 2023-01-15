@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Interpret de Funx</title>
+    <style>
+        
+        /* left pannel */
+        .leftdiv {
+            display: inline-block;
+            width: 50%;
+            float: left;
+            background-color: rgb(145, 140, 140);
+
+
+            height: 100vh;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        /* right pannel */
+        .rightdiv {
+
+            width: 50%;
+            float: left;
+            background-color: rgb(85, 85, 80);
+
+            display: inline-block;
+            height: 100vh;
+            font-size: 14px;
+            word-wrap: break-word;
+            overflow-y: auto;
+        }
+
+
+    </style>
+
+</head>
+
+<body>
+
+    
+
+    <div class="leftdiv">
+        <!-- Content for the first section goes here -->
+        <div style="height: 50%; width: 100%;">
+            
+            <h1 style="color:blue;">Consola:</h1>
+            <form action="/" method="POST" id="code">
+                <textarea name="coding" id="code" rows="10"
+                    cols="50" form="code"></textarea>
+                <input type="submit" value="Submit"/>
+            </form>
+
+        </div>
+
+        <div style="height: 50%; width: 100%;">
+            <h1 style="color:red;">Funcions:</h1>
+            <div style="position: static" class="body">
+                <ul>
+                    {%for func, params in funcions%}
+                    <p style="margin-left: 3%"> <li type="disc">{{ func }}  {{ params }} </li></p>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        
+    </div>
+
+
+    
+    <div class="rightdiv">
+        <!-- Content for the second section goes here -->
+        <h1 style="color:green;">Resultats:</h1>
+        <p> {% for in, out in in_out %}
+            
+            <p style="margin-left: 5%"><li><b>Input:</b>
+                 {{ in }} </li></p>
+
+            <p style="margin-left: 5%"><li><b>Output:</b>
+                {% for o in out %} {{ o }} {% endfor %}</li></p>
+            
+            <div style="height: 5%"></div>
+        {% endfor %}</p>
+
+    </div>
+
+
+</body>
+</html>
