@@ -1,4 +1,4 @@
-// Generated from /home/andres/Escritorio/PracLP/funx.g4 by ANTLR 4.9.2
+// Generated from /home/andres/Escritorio/FIB/7o/LP_v2/PracLP/funx.g4 by ANTLR 4.9.2
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
